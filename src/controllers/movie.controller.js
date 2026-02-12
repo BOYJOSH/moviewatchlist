@@ -19,11 +19,16 @@ export const addMovie = (req, res) => {
         error: 'Movie title is required'
       });
     }
-
+    if (movies.find(m => m.title.toLowerCase() === title.toLowerCase() && m.year === year)) {
+      return res.status(400).json({
+        error: 'Movie with this title and year already exists'
+      });
+    }
+  
     const newMovie = {
       id: movies.length + 1,
       title,
-      year: year || 'Not specified',
+      year: year, 
       createdAt: new Date()
     };
 
@@ -42,11 +47,12 @@ export const addMovie = (req, res) => {
 
 export const addToWatchlist = (req, res) => {
   try {
-    const { userId, movieId, status } = req.body;
-
-    if (!userId || !movieId) {
+    const { movieId, status } = req.body;
+    const { userId } = req.params;
+    
+    if (!movieId) {
       return res.status(400).json({
-        error: 'User ID and Movie ID are required'
+        error: 'Movie ID is required'
       });
     }
 
@@ -58,9 +64,13 @@ export const addToWatchlist = (req, res) => {
         error: 'User or Movie not found'
       });
     }
-
+    if (watchlists.some(w => w.userId === Number(userId) && w.movieId === Number(movieId))) {
+      return res.status(400).json({
+        error: 'Movie already in watchlist'
+      });
+    }
     const newWatchlistEntry = {
-      id: watchlists.length + 1,
+      watchlistID: watchlists.length + 1,
       userId: Number(userId),
       movieId: Number(movieId),
       status: status || 'want-to-watch',
@@ -98,10 +108,10 @@ export const getUserWatchlist = (req, res) => {
 
 export const updateWatchlistItem = (req, res) => {
   try {
-    const { id } = req.params;
-    const { status, rating, notes } = req.body;
+    const { userId } = req.params;
+    const { watchlistID, status, rating, notes } = req.body;
 
-    const item = watchlists.find(w => w.id === Number(id));
+    const item = watchlists.find(w => w.watchlistID === Number(watchlistID) && w.userId === Number(userId));
     if (!item) {
       return res.status(404).json({
         error: 'Watchlist item not found'
@@ -119,6 +129,36 @@ export const updateWatchlistItem = (req, res) => {
   } catch (error) {
     res.status(500).json({
       error: 'Failed to update watchlist'
+    });
+  }
+};
+
+export const deleteWatchlistItem = (req, res) => {
+  try {
+    const { userId, watchlistID } = req.params;
+
+    const index = watchlists.findIndex(
+      w =>
+        w.watchlistID === Number(watchlistID) &&
+        w.userId === Number(userId)
+    );
+
+    if (index === -1) {
+      return res.status(404).json({
+        error: 'Watchlist item not found'
+      });
+    }
+
+    const removedItem = watchlists.splice(index, 1)[0];
+
+    res.json({
+      message: 'Movie removed from watchlist',
+      removed: removedItem
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      error: 'Failed to delete watchlist item'
     });
   }
 };

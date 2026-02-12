@@ -49,7 +49,7 @@ export const movies = [
 
 export const watchlists = [
   {
-    id: 1,
+    watchlistID: 1,
     userId: 1,
     movieId: 1,
     status: "watched",
