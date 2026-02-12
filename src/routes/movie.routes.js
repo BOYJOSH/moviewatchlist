@@ -5,7 +5,7 @@ const movieRouter = Router();
 movieRouter.get("/movies", getMovies);
 movieRouter.post("/movies", addMovie);
 movieRouter.get("/watchlist/:userId", getUserWatchlist);
-movieRouter.post("/watchlist/add", addToWatchlist);
+movieRouter.post("/watchlist/:userId", addToWatchlist);
 movieRouter.put("/watchlist/:id", updateWatchlistItem)
 
 export default movieRouter;
