@@ -22,6 +22,7 @@ export const registerUser = async (req, res) => {
       email,
       password: encryptedPassword
     };
+    //Send New user to Mock database
     users.push(newUser);
     res.status(201).json({
       message: 'User registered successfully',
